@@ -1,11 +1,12 @@
 
 ## Introduction <a name="intro"></a>
 
+PINN is trained to find the diffusion coefficient from the evolving DEM simulation results.
+The neural network loss funciton is custimized to include a 2D advection-diffusion equation: 
+
 ![loss_epoch](artifacts/animations/dem.gif)
 ![loss_epoch](artifacts/animations/combined.gif)
 
-PINN is trained to find the diffusion coefficient from the evolving DEM simulation results.
-The neural network loss funciton is custimized to include a 2D advection-diffusion equation: 
 
 $$\frac{\partial c_i}{\partial t} -\frac{\partial}{\partial z} \Big( D\frac{\partial c_i}{\partial z} \Big)=0,$$
 
