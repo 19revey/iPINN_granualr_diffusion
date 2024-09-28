@@ -1,0 +1,45 @@
+geometry:
+    t_min: -1.0  
+    t_max: 1.0
+    t_scale: 25.0
+    z_min: -0.05
+    z_max: 0.05
+    n_data_per_bc: 1000
+    n_data_collocation: 10000
+
+particle:
+    dl: 0.004
+    rd: 1.0
+    cl: 0.5
+    rho: 1000.0
+    theta: 0.0
+    gamma: 50.0
+    h0: 0.01
+
+model:
+    epochs: 5000
+
+    layers: [2,100,100,100,100,100,100,1]
+    inverse: True
+    # mat_file: "data/t20_s1mu5c5rho1g100.mat"
+    mat_file: "data/t50_s1mu5c5rho1.mat"
+    lr: 0.001
+    lr_scheduler_factor: 0.1
+    lr_scheduler_patience: 1000
+    loss_weight:
+        loss_drich  : 0.0
+        loss_newmann : 1.0
+        loss_measurements: 1.0
+        loss_pde : 1.0
+
+    balanced_loss_weight: True  # Ignore initial condition if inverse=True    
+    measurement_spatial_weight: True
+    include_drich: False # Ignore boundary condition if inverse=True
+    clamp_c: False
+
+animation:
+    save_contour_animation: False
+    skip: 10       # Skip every n-th frame
+    interval: 0.1    # Delay between frames in milliseconds
+    fps: 30        # Frames per second
+    log: True    # Logarithmic scale for y-axis

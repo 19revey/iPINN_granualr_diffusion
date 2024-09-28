@@ -1,3 +1,14 @@
+data/
+artifacts/logs
+artifacts/template
+artifacts/trained_model
+notebook/
+train_forward.py
+pdfs/
+
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
