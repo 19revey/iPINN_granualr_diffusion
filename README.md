@@ -21,7 +21,7 @@ $$w_{i}c_{i,{(t, z=H)}}-D\frac{\partial c_i}{\partial z}_{(t, z=H)}=0$$
 The objective is to extract the diffusion coefficient from the noisy sparse DEM simulation measurement.
 
 
-![loss_epoch](artifacts/animations/combined.gif)
+https://github.com/19revey/iPINN-granular-diffusion/blob/main/artifacts/output.mp4
 
 $C_d$ is found to be 0.04, which is close to the range 0.3-0.5 reported in the literature.
 
