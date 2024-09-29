@@ -5,6 +5,7 @@ artifacts/trained_model
 notebook/
 train_forward.py
 pdfs/
+.vscode/
 
 
 
