@@ -13,7 +13,9 @@ $$\frac{\partial c_i}{\partial t} -\frac{\partial}{\partial z} \Big( D\frac{\par
 
 with the following boundary conditions:
 $$c_i(t=0, z) = 0.5$$
+
 $$w_{i}c_i|_{(t, z=0)}-D\frac{\partial c_i}{\partial z} |_{(t, z=H)} =0$$
+
 $$w_{i}c_i|_{(t, z=0)}-D\frac{\partial c_i}{\partial z} |_{(t, z=H)}=0$$  
 
 The objective is to extract the diffusion coefficient from the noisy sparse DEM simulation measurement.
