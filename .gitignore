@@ -1,6 +1,6 @@
 data/
 artifacts/logs
-artifacts/template
+artifacts/temp
 artifacts/trained_model
 notebook/
 train_forward.py

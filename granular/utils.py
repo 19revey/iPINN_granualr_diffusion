@@ -157,15 +157,15 @@ def save_animation(epoches, x,y,results,losses, **kwargs):
         plot_individual_loss(losses['lambd'],losses['total_loss'],current_epoch=i,x_label="C_d",y_label="Loss",title="C_d vs. Loss")
 
         plt.tight_layout()
-        plt.savefig(f"artifacts/temp/{i}.png")
+        plt.savefig(f"artifacts/temp/{i:03d}.png")
         plt.close()
         
     frames=[] 
     for i,epoch in enumerate(epoches):
-        frame=PIL.Image.open(f"artifacts/temp/{i}.png")  
+        frame=PIL.Image.open(f"artifacts/temp/{i:03d}.png")  
         frame=np.asarray(frame)
         frames.append(frame) 
-    imageio.mimsave('artifacts/animations/combined.gif', frames, fps=fps) 
+    imageio.mimsave('artifacts/animations/combined.gif', frames, fps=fps, loop=0) 
 
 
 

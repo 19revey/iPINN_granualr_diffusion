@@ -24,7 +24,7 @@ model:
     # mat_file: "data/t20_s1mu5c5rho1g100.mat"
     mat_file: "data/t50_s1mu5c5rho1.mat"
     lr: 0.001
-    lr_scheduler_factor: 0.1
+    lr_scheduler_factor: 0.5
     lr_scheduler_patience: 1000
     loss_weight:
         loss_drich  : 0.0
@@ -38,8 +38,8 @@ model:
     clamp_c: False
 
 animation:
-    save_contour_animation: False
+    save_contour_animation: True
     skip: 10       # Skip every n-th frame
     interval: 0.1    # Delay between frames in milliseconds
-    fps: 30        # Frames per second
+    fps: 60        # Frames per second
     log: True    # Logarithmic scale for y-axis

@@ -4,9 +4,9 @@
 PINN is trained to find the diffusion coefficient from the evolving DEM simulation results.
 The neural network loss funciton is custimized to include a 2D advection-diffusion equation: 
 
-![loss_epoch](artifacts/animations/dem.gif)
-![loss_epoch](artifacts/animations/combined.gif)
-
+<div style="text-align: center;">
+<img src="artifacts/animations/dem.gif" alt="loss_epoch" width="400" height="230"/>
+</div>
 
 $$\frac{\partial c_i}{\partial t} -\frac{\partial}{\partial z} \Big( D\frac{\partial c_i}{\partial z} \Big)=0,$$
 
@@ -22,12 +22,27 @@ $$
 The objective is to extract the diffusion coefficient from the noisy sparse DEM simulation measurement.
 
 
+![loss_epoch](artifacts/animations/combined.gif)
+
+$C_d$ is found to be 0.04, which is close to the range 0.3-0.5 reported in the literature.
+
+## To use
+1. Install the required dependencies:
+```bash
+pip install -r requirements.txt
+```
+2. Modify parameters as needed in the config.yaml file.
+3. To start training, run the following command:
+```bash
+python train.py --train new
+```
 
 
 
 
 
-## Results
+
+<!-- ## Results
 
 
 
@@ -35,4 +50,4 @@ The objective is to extract the diffusion coefficient from the noisy sparse DEM 
 ![loss_epoch](artifacts/figures/pred_profiles.png)
 ## Papers related to PINN
 
-[Causality PINN](https://arxiv.org/pdf/2203.07404): account for physical causality
+[Causality PINN](https://arxiv.org/pdf/2203.07404): account for physical causality -->
