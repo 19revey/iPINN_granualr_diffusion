@@ -1,12 +1,14 @@
 data/
 artifacts/logs
-artifacts/temp
+artifacts/temp/
 artifacts/trained_model
 notebook/
 train_forward.py
 pdfs/
 .vscode/
-
+*png
+*ipynb
+*mp4
 
 
 

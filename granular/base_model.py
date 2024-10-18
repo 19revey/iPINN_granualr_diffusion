@@ -56,6 +56,10 @@ class Base_net(nn.Module):
         self.z_min = self.config.geometry.z_min
         self.z_center = (self.z_max+self.z_min)/2
 
+        self.z_upper_limit = self.config.geometry.z_upper_limit
+        self.z_lower_limit = self.config.geometry.z_lower_limit
+
+
     
     def forward(self, x,y):
         
@@ -80,3 +84,55 @@ class Base_net(nn.Module):
         grad_norm = torch.tensor([p.grad.norm().item() for p in self.parameters() if p.grad is not None]).mean()
         grad_max = torch.tensor([p.grad.norm().item() for p in self.parameters() if p.grad is not None]).max()
         return grad_max/(grad_norm+1e-8)
+    
+
+    def loss_measurements(self,x_n,y_n,c_n):
+        x= x_n.clone().detach().requires_grad_(True)
+        y= y_n.clone().detach().requires_grad_(True)
+        c = c_n.clone().detach().requires_grad_(False)
+        
+        
+        u = self.forward(x,y)        
+
+        if self.config.model.measurement_spatial_weight:
+            # measurement_weight = 1- torch.square(2* (y-self.z_center)/(self.z_max-self.z_min))
+
+            measurement_weight = (y-self.z_min)/(self.z_max-self.z_min)
+            mask1 = measurement_weight>self.z_upper_limit
+            mask2 = measurement_weight<self.z_lower_limit
+            measurement_weight = torch.ones_like(measurement_weight)
+            measurement_weight[mask1]=0
+            measurement_weight[mask2]=0
+            # mask= mask1 & mask2
+            # measurement_weight[~mask]=0
+
+            losses = self.loss_function_no_reduction(u, c)
+            weighted_loss = torch.mean(measurement_weight * losses)
+
+        else:
+            u = self.forward(x,y)
+            weighted_loss = self.loss_function(u, c)    
+        return weighted_loss 
+    
+    def loss_drichlet(self,x_b,y_b,c):
+        x = x_b.clone().detach().requires_grad_(True)
+        y = y_b.clone().detach().requires_grad_(True)
+
+        # mask=y_b>0.005
+        # c[mask]=1
+        # c[~mask]=0
+        loss_u = self.loss_function(self(x,y), c)
+                
+        return loss_u #* self.config.model.loss_weight.loss_bc
+    
+
+    def loss_newmann(self,x_n,y_n):
+        x= x_n.clone().detach().requires_grad_(True)
+        y= y_n.clone().detach().requires_grad_(True)
+        
+        u = self.forward(x,y)
+
+        flux=self._flux(x,y,u)
+        loss_newmann = self.loss_function(flux, torch.zeros_like(flux).to(device))
+
+        return loss_newmann 

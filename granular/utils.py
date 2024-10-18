@@ -166,7 +166,7 @@ def save_animation(epoches, x,y,results,losses, **kwargs):
         frame=np.asarray(frame)
         frames.append(frame) 
     imageio.mimsave('artifacts/animations/combined.gif', frames, fps=fps, loop=0) 
-
+    # imageio.mimsave('artifacts/animations/combined.mp4', frames, fps=fps, codec='libx264')
 
 
 def plot_animation_contour(x, y,c, **kwargs):

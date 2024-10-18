@@ -1,4 +1,4 @@
-from granular.model import Net
+from granular.advection_diffusion import Net
 from granular.points import Points
 from granular.utils import  plot_points, save_animation
 from box import ConfigBox
@@ -25,6 +25,8 @@ class Pinn:
         self.loss_history = defaultdict(list)
         self.prediction_history = defaultdict(list)
         
+        self.best_model={'loss':1000.0, 'c_d':1.0, 'model':None}
+        # self.best_model['loss']=10000
 
         # print(self.model._intruder_force())
 
@@ -144,6 +146,12 @@ class Pinn:
                         self.loss_history['loss_newmann'].append(loss_newmann.item())
                         self.loss_history['loss_pde'].append(loss_pde.item())
                         self.loss_history['epoches'].append(epoch)
+
+                        if loss.item()< self.best_model['loss']:
+                            self.best_model['loss']= loss.item()
+                            self.best_model['c_d']=param.data[-1].item()
+                            self.best_model['model']=copy.deepcopy(self.model)
+
                         tqdm.write(f"target parameter: {param.data.reshape(-1)}")
 
 
@@ -151,19 +159,18 @@ class Pinn:
                 if config.model.inverse:
                     tqdm.write(f"Learning rate:{optimizer.param_groups[0]['lr']}, Epoch: {epoch}, Loss: {tloss}, measurements: {lambd_m*loss_measurements.item()/tloss:.4f},drichlet: {loss_drichlet.item()/tloss:.4f}, newmann: {loss_newmann.item()/tloss:.4f}, pde: {loss_pde.item()/tloss:.4f}")
                 else:
-                    tqdm.write(f"Epoch: {epoch}, Loss: {tloss}, drichlet: {lambd_drich*loss_drichlet.item()/tloss:.4f}, newmann: {lambd_newmann*loss_newmann.item()/tloss:.4f}, pde: {loss_pde.item()/tloss:.4f}")
+                    tqdm.write(f"Epoch: {epoch}, Loss: {tloss}, drichlet: {lambd_drich*loss_drichlet.item():.4f}, newmann: {lambd_newmann*loss_newmann.item():.4f}, pde: {loss_pde.item():.4f}")
         
         if config.animation.save_contour_animation:
             save_animation(self.loss_history['epoches'],x_cpu,y_cpu,self.prediction_history,self.loss_history,**config.animation)
 
-        return self.model, self.loss_history
+        return self.best_model['model'], self.loss_history
     
     def save(self):
-        torch.save(self.model, "artifacts/trained_model/model.pth")
+        torch.save(self.best_model['model'], "artifacts/trained_model/model.pth")
     def load(self):
         self.model = torch.load("artifacts/trained_model/model.pth")
     
-
 
 
 
@@ -200,14 +207,15 @@ if __name__ == "__main__":
     predict(pinn.model,params)
     
     epoch = pinn.loss_history['epoches']
-    plot_animation_loss(epoch,pinn.loss_history['total_loss'],**params.animation, filename="artifacts/animations/loss_vs_epoch.gif")
-    plot_animation_loss(pinn.loss_history['lambd'],pinn.loss_history['total_loss'],x_label="C_d",**params.animation, filename="artifacts/animations/loss_vs_cd.gif")
+    if params.animation.save_loss_animation:
+        plot_animation_loss(epoch,pinn.loss_history['total_loss'],**params.animation, filename="artifacts/animations/loss_vs_epoch.gif")
+        plot_animation_loss(pinn.loss_history['lambd'],pinn.loss_history['total_loss'],x_label="C_d",**params.animation, filename="artifacts/animations/loss_vs_cd.gif")
     
     
-    # plt.figure(figsize=(6, 4))
-    # plt.semilogy(pinn.loss_history['total_loss'])
-    # plt.savefig("artifacts/figures/loss.png")
-    # plt.close()
+    plt.figure(figsize=(6, 4))
+    plt.semilogy(pinn.loss_history['total_loss'])
+    plt.savefig("artifacts/figures/loss.png")
+    plt.close()
 
     plt.figure(figsize=(15, 4))
     plt.subplot(131)
@@ -228,9 +236,11 @@ if __name__ == "__main__":
     plt.savefig("artifacts/figures/lambd_loss.png")
     plt.close()
 
-    # last_1000 = pinn.loss_history['lambd'][-1000:]
-    # print(f'mean lambd: {np.mean(last_1000)}')
-    # print(f'std lambd: {np.std(last_1000)}')
+    last_1000 = pinn.loss_history['lambd'][-2000:]
+    cd= pinn.best_model['c_d'] 
+    print(f'best parameter: {cd}')
+    print(f'mean lambd: {np.mean(last_1000)}')
+    print(f'std lambd: {np.std(last_1000)}')
 
     # vis = Visualizer(pinn.model,pinn.loss_history,params)
     # vis.plot_contour()

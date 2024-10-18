@@ -12,6 +12,9 @@ class Points:
     def __init__(self, config:ConfigBox):
         self.t_min = config.geometry.t_min
         self.t_max = config.geometry.t_max
+        self.t_start = config.geometry.t_start
+        self.t_end = config.geometry.t_end
+        self.t_step = config.geometry.t_step
         self.z_min = config.geometry.z_min
         self.z_max = config.geometry.z_max
         self.n_data_per_bc = config.geometry.n_data_per_bc
@@ -84,6 +87,12 @@ class Points:
     
     def get_matlab_data(self):
         mat_data = scipy.io.loadmat(self.file_path)
+        ###
+        # print(mat_data['data'][0:100,:].shape)
+        mask = np.arange(self.t_start,self.t_end,self.t_step)
+        mat_data['data']=mat_data['data'][mask,:]
+        print(mat_data['data'].shape)
+        ###
         t_len,x_len=mat_data['data'].shape
         x_sim= np.linspace(self.t_min, self.t_max, t_len)
         y_sim= np.linspace(self.z_min, self.z_max, x_len)

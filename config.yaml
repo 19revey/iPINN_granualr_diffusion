@@ -1,9 +1,16 @@
 geometry:
     t_min: -1.0  
     t_max: 1.0
-    t_scale: 25.0
+    t_start:  1
+    t_end:  500
+    t_step: 1
+    t_scale: 25.0           ## (t_end-t_start)*0.1/(t_max-t_min)
+
     z_min: -0.05
     z_max: 0.05
+    z_lower_limit: 0.1
+    z_upper_limit: 1.0
+
     n_data_per_bc: 1000
     n_data_collocation: 10000
 
@@ -21,11 +28,11 @@ model:
 
     layers: [2,100,100,100,100,100,100,1]
     inverse: True
-    # mat_file: "data/t20_s1mu5c5rho1g100.mat"
+    # mat_file: "data/t10_s2.0mu5c5rho1.mat"
     mat_file: "data/t50_s1mu5c5rho1.mat"
-    lr: 0.001
+    lr: 0.0005
     lr_scheduler_factor: 0.5
-    lr_scheduler_patience: 1000
+    lr_scheduler_patience: 5000
     loss_weight:
         loss_drich  : 0.0
         loss_newmann : 1.0
@@ -38,7 +45,8 @@ model:
     clamp_c: False
 
 animation:
-    save_contour_animation: True
+    save_loss_animation: False
+    save_contour_animation: False
     skip: 10       # Skip every n-th frame
     interval: 0.1    # Delay between frames in milliseconds
     fps: 60        # Frames per second

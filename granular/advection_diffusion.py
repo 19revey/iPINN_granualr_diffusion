@@ -56,59 +56,15 @@ class Net(Base_net):
         u_y = torch.autograd.grad(u,y, torch.ones_like(u).to(device),retain_graph=True, create_graph=True)[0]  
         
 
-        # flux = ((wseg)*u-0.055*self.gamma*((1-u)*self.ds+u*self.dl)*((1-u)*self.ds+u*self.dl)*u_y)
         flux = -self.lambd[2]*self.gamma*((1-u)*self.ds+u*self.dl)*((1-u)*self.ds+u*self.dl)*u_y
+        # flux = -self.lambd[2]*self.gamma*((1-u)*self.ds+u*self.dl)*((1-u)*self.ds+u*self.dl)/torch.sqrt(inert)*u_y
 
         # return (1-u)*u-0.1*u_y
         return flux*self.t_scale
     
-    def loss_drichlet(self,x_b,y_b,c):
-        x = x_b.clone().detach().requires_grad_(True)
-        y = y_b.clone().detach().requires_grad_(True)
 
-        # mask=y_b>0.005
-        # c[mask]=1
-        # c[~mask]=0
-        loss_u = self.loss_function(self(x,y), c)
-                
-        return loss_u #* self.config.model.loss_weight.loss_bc
-    
-    def loss_newmann(self,x_n,y_n):
-        x= x_n.clone().detach().requires_grad_(True)
-        y= y_n.clone().detach().requires_grad_(True)
-        
-        u = self.forward(x,y)
 
-        flux=self._flux(x,y,u)
-        loss_newmann = self.loss_function(flux, torch.zeros_like(flux).to(device))
 
-        return loss_newmann 
-
-    def loss_measurements(self,x_n,y_n,c_n):
-        x= x_n.clone().detach().requires_grad_(True)
-        y= y_n.clone().detach().requires_grad_(True)
-        c = c_n.clone().detach().requires_grad_(False)
-        
-        
-        u = self.forward(x,y)        
-
-        if self.config.model.measurement_spatial_weight:
-            # measurement_weight = 1- torch.square(2* (y-self.z_center)/(self.z_max-self.z_min))
-
-            measurement_weight = (y-self.z_min)/(self.z_max-self.z_min)
-            mask1 = measurement_weight>0.8 
-            mask2 = measurement_weight<0.2
-            measurement_weight = torch.ones_like(measurement_weight)
-            measurement_weight[mask1]=0
-            measurement_weight[mask2]=0
-
-            losses = self.loss_function_no_reduction(u, c)
-            weighted_loss = torch.mean(measurement_weight * losses)
-
-        else:
-            u = self.forward(x,y)
-            weighted_loss = self.loss_function(u, c)    
-        return weighted_loss 
 
     def loss_PDE(self, x_c,y_c):
         
@@ -116,6 +72,26 @@ class Net(Base_net):
         x= x_c.clone().detach().requires_grad_(True)
         y= y_c.clone().detach().requires_grad_(True)
         
+        u = self.forward(x,y)
+
+
+        u_x = torch.autograd.grad(u,x, torch.ones_like(u).to(device),retain_graph=True, create_graph=True)[0]                         
+
+        flux=self._flux(x,y,u)
+
+
+        flux_y= torch.autograd.grad(flux,y, torch.ones_like(flux).to(device), create_graph=True)[0]
+                        
+        f =  u_x + flux_y
+        
+        loss_f = self.loss_function(f,torch.zeros(f.shape).to(device))
+                
+        return loss_f
+    
+    def loss_sailency(self, x,y):
+        
+
+
         u = self.forward(x,y)
 
 

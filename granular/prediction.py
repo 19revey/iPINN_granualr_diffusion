@@ -136,6 +136,35 @@ def predict(PINN, config:ConfigBox):
     plt.savefig("artifacts/figures/pred_profiles.png")
     plt.close()
 
-    # print(S_[:,-1].shape)
+    # sailency map
+    sailency = None
+    PINN.eval()
+
+
+    X_T.requires_grad_(True)
+    Y_T.requires_grad_(True)
+    # loss = PINN.get_PDE_residue(X_T,Y_T)
+    loss = PINN.loss_sailency(X_T,Y_T)
+    loss.backward()
+
+
+    sailency = X_T.grad.abs()+Y_T.grad.abs()
+    plt.figure(figsize=(5, 4))
+    plt.subplot(111)
+    plt.pcolormesh(X_T.cpu().detach().numpy().reshape(ny, nx), 
+                   Y_T.cpu().detach().numpy().reshape(ny, nx), 
+                   sailency.cpu().detach().numpy().reshape(ny, nx),  cmap="gray")
+    plt.colorbar()
+    plt.xlabel("t")
+    plt.ylabel("z")
+    plt.title("PINN")
+    plt.tight_layout()
+    # plt.axis("square")
+
+    plt.savefig("artifacts/figures/sailency.png")
+    plt.close()
+    
+
+
 
 
